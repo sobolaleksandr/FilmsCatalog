@@ -1,73 +1,25 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-namespace FilmsCatalog.Models
+﻿namespace FilmsCatalog.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+
+    using Microsoft.AspNetCore.Http;
+
+    /// <summary>
+    /// Вью модель фильма.
+    /// </summary>
     public class MovieViewModel : IValidatableObject
     {
-        public int ID { get; set; }
-
-        public string Title { get; set; }
-
-        public string Description { get; set; }
-
-        [DataType(DataType.Date)]
-        public DateTime? Year { get; set; }
-
-        public string Producer { get; set; }
-
-        public string Added { get; set; }
-
-        public IFormFile Poster { get; set; }
-
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            List<ValidationResult> errors = new();
-
-            if (string.IsNullOrWhiteSpace(this.Title))
-            {
-                errors.Add(new ValidationResult("Введите название фильма!", new List<string>() { nameof(Title) }));
-            }
-            if (string.IsNullOrWhiteSpace(this.Description))
-            {
-                errors.Add(new ValidationResult("Введите описание фильма!", new List<string>() { nameof(Description) }));
-            }
-            if (!this.Year.HasValue)
-            {
-                errors.Add(new ValidationResult("Введите год выпуска!", new List<string>() { nameof(Year) }));
-            }
-            else if (this.Year.Value > DateTime.Today || this.Year.Value == default)
-            {
-                errors.Add(new ValidationResult("Неверный год выпуска фильма!", new List<string>() { nameof(Year) }));
-            }
-            if (!ValidateImage(this.Poster))
-            {
-                errors.Add(new ValidationResult("Неверный тип файла!", new List<string>() { nameof(Poster) }));
-            }
-            if (string.IsNullOrWhiteSpace(this.Producer))
-            {
-                errors.Add(new ValidationResult("Введите режисера фильма!", new List<string>() { nameof(Producer) }));
-            }
-
-            return errors;
-        }
-
-        private bool ValidateImage(IFormFile uploadedFile)
-        {
-            if (uploadedFile != null)
-                if (resolutions.Contains(uploadedFile.ContentType) &&
-                uploadedFile.Length < MAX_SIZE_IN_BYTES)
-                    return true;
-
-            return false;
-        }
-
+        /// <summary>
+        /// Максимальный размер постера в байтах.
+        /// </summary>
         private const long MAX_SIZE_IN_BYTES = 1500000;
 
-        private readonly List<string> resolutions = new()
+        /// <summary>
+        /// Допустимые расширения постера.
+        /// </summary>
+        private readonly List<string> _resolutions = new List<string>()
         {
             "image/jpeg",
             "image/bmp",
@@ -76,5 +28,51 @@ namespace FilmsCatalog.Models
             "image/png",
             "image/png"
         };
+
+        public string Description { get; set; }
+
+        public int ID { get; set; }
+
+        public IFormFile Poster { get; set; }
+
+        public string Producer { get; set; }
+
+        public string Title { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? Year { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var errors = new List<ValidationResult>();
+
+            if (string.IsNullOrWhiteSpace(Title))
+                errors.Add(new ValidationResult("Введите название фильма!", new List<string> { nameof(Title) }));
+            if (string.IsNullOrWhiteSpace(Description))
+                errors.Add(new ValidationResult("Введите описание фильма!", new List<string> { nameof(Description) }));
+            if (!Year.HasValue)
+                errors.Add(new ValidationResult("Введите год выпуска!", new List<string> { nameof(Year) }));
+            else if (Year.Value > DateTime.Today || Year.Value == default)
+                errors.Add(new ValidationResult("Неверный год выпуска фильма!", new List<string> { nameof(Year) }));
+            if (!ValidateImage(Poster))
+                errors.Add(new ValidationResult("Неверный тип файла!", new List<string> { nameof(Poster) }));
+            if (string.IsNullOrWhiteSpace(Producer))
+                errors.Add(new ValidationResult("Введите режисера фильма!", new List<string> { nameof(Producer) }));
+
+            return errors;
+        }
+
+        /// <summary>
+        /// Валидация загружаемого файла. 
+        /// </summary>
+        /// <param name="uploadedFile"> Загружаемый файл. </param>
+        /// <returns> Возвращает true, если пройдена. </returns>
+        private bool ValidateImage(IFormFile uploadedFile)
+        {
+            if (uploadedFile == null)
+                return false;
+
+            return _resolutions.Contains(uploadedFile.ContentType) && uploadedFile.Length < MAX_SIZE_IN_BYTES;
+        }
     }
 }

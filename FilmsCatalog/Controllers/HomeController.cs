@@ -73,7 +73,7 @@ namespace FilmsCatalog.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateOrEdit(MovieViewModel model)
         {
-            Movie movie = new()
+            var movie = new Movie()
             {
                 ID = model.ID,
                 Title = model.Title,
@@ -114,8 +114,8 @@ namespace FilmsCatalog.Controllers
             var count = await source.CountAsync();
             var items = await source.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-            PageViewModel pageViewModel = new(count, page, pageSize);
-            IndexViewModel viewModel = new()
+            var pageViewModel = new PageViewModel(count, page, pageSize);
+            var viewModel = new IndexViewModel()
             {
                 PageViewModel = pageViewModel,
                 Movies = items
@@ -130,5 +130,4 @@ namespace FilmsCatalog.Controllers
         public IActionResult Error() => 
             View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-    }
 }
