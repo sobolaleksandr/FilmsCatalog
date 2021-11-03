@@ -1,41 +1,52 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using FilmsCatalog.Models;
-
-namespace FilmsCatalog.TagHelpers
+﻿namespace FilmsCatalog.TagHelpers
 {
+    using FilmsCatalog.Models;
+
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.Rendering;
+    using Microsoft.AspNetCore.Mvc.Routing;
+    using Microsoft.AspNetCore.Mvc.ViewFeatures;
+    using Microsoft.AspNetCore.Razor.TagHelpers;
+
+    /// <summary>
+    /// Тег-хелпер для отображения страницы.
+    /// </summary>
     public class PageLinkTagHelper : TagHelper
     {
-        private IUrlHelperFactory urlHelperFactory;
+        private readonly IUrlHelperFactory _urlHelperFactory;
+
+        /// <summary>
+        /// Тег-хелпер для отображения страницы.
+        /// </summary>
         public PageLinkTagHelper(IUrlHelperFactory helperFactory)
         {
-            urlHelperFactory = helperFactory;
+            _urlHelperFactory = helperFactory;
         }
+
+        public string PageAction { get; set; }
+
+        public PageViewModel PageModel { get; set; }
+
         [ViewContext]
         [HtmlAttributeNotBound]
         public ViewContext ViewContext { get; set; }
-        public PageViewModel PageModel { get; set; }
-        public string PageAction { get; set; }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            IUrlHelper urlHelper = urlHelperFactory.GetUrlHelper(ViewContext);
+            var urlHelper = _urlHelperFactory.GetUrlHelper(ViewContext);
             output.TagName = "div";
 
             // набор ссылок будет представлять список ul
-            TagBuilder tag = new TagBuilder("ul");
+            var tag = new TagBuilder("ul");
             tag.AddCssClass("pagination");
 
             // формируем три ссылки - на текущую, предыдущую и следующую
-            TagBuilder currentItem = CreateTag(PageModel.PageNumber, urlHelper);
+            var currentItem = CreateTag(PageModel.PageNumber, urlHelper);
 
             // создаем ссылку на предыдущую страницу, если она есть
             if (PageModel.HasPreviousPage)
             {
-                TagBuilder prevItem = CreateTag(PageModel.PageNumber - 1, urlHelper);
+                var prevItem = CreateTag(PageModel.PageNumber - 1, urlHelper);
                 tag.InnerHtml.AppendHtml(prevItem);
             }
 
@@ -43,24 +54,22 @@ namespace FilmsCatalog.TagHelpers
             // создаем ссылку на следующую страницу, если она есть
             if (PageModel.HasNextPage)
             {
-                TagBuilder nextItem = CreateTag(PageModel.PageNumber + 1, urlHelper);
+                var nextItem = CreateTag(PageModel.PageNumber + 1, urlHelper);
                 tag.InnerHtml.AppendHtml(nextItem);
             }
+
             output.Content.AppendHtml(tag);
         }
 
-        TagBuilder CreateTag(int pageNumber, IUrlHelper urlHelper)
+        private TagBuilder CreateTag(int pageNumber, IUrlHelper urlHelper)
         {
-            TagBuilder item = new TagBuilder("li");
-            TagBuilder link = new TagBuilder("a");
-            if (pageNumber == this.PageModel.PageNumber)
-            {
+            var item = new TagBuilder("li");
+            var link = new TagBuilder("a");
+            if (pageNumber == PageModel.PageNumber)
                 item.AddCssClass("active");
-            }
             else
-            {
                 link.Attributes["href"] = urlHelper.Action(PageAction, new { page = pageNumber });
-            }
+
             item.AddCssClass("page-item");
             link.AddCssClass("page-link");
             link.InnerHtml.Append(pageNumber.ToString());

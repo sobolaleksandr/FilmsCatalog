@@ -1,29 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace FilmsCatalog.Models
+﻿namespace FilmsCatalog.Models
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+
+    /// <summary>
+    /// Модель фильма.
+    /// </summary>
     public class Movie
     {
-        public int ID { get; set; }
+        /// <summary>
+        /// Создатель записи. 
+        /// </summary>
+        public string Added { get; set; }
 
-        [Required]
-        public string Title { get; set; }
-
+        /// <summary>
+        /// Описание.
+        /// </summary>
         [Required]
         public string Description { get; set; }
 
-        [Required]        
-        public DateTime? Year { get; set; }
+        /// <summary>
+        /// Идентификатор.
+        /// </summary>
+        public int Id { get; set; }
 
+        /// <summary>
+        /// Путь до постера.
+        /// </summary>
+        public string Poster { get; set; }
+
+        /// <summary>
+        /// Режисер.
+        /// </summary>
         [Required]
         public string Producer { get; set; }
 
-        public string Added { get; set; }
+        /// <summary>
+        /// Название.
+        /// </summary>
+        [Required]
+        public string Title { get; set; }
 
-        public string Poster { get; set; }
+        /// <summary>
+        /// Год выпуска.
+        /// </summary>
+        [Required]
+        public DateTime? Year { get; set; }
     }
 }

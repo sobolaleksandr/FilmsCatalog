@@ -7,7 +7,7 @@
     using Microsoft.AspNetCore.Http;
 
     /// <summary>
-    /// Вью модель фильма.
+    /// Вью модель <see cref="Movie"/>.
     /// </summary>
     public class MovieViewModel : IValidatableObject
     {
@@ -19,7 +19,7 @@
         /// <summary>
         /// Допустимые расширения постера.
         /// </summary>
-        private readonly List<string> _resolutions = new List<string>()
+        private readonly List<string> _resolutions = new List<string>
         {
             "image/jpeg",
             "image/bmp",
@@ -29,37 +29,67 @@
             "image/png"
         };
 
+        /// <summary>
+        /// Список ошибок модели.
+        /// </summary>
+        private List<ValidationResult> _errors;
+
+        /// <summary>
+        /// Описание.
+        /// </summary>
         public string Description { get; set; }
 
-        public int ID { get; set; }
+        /// <summary>
+        /// Идентификатор.
+        /// </summary>
+        public int Id { get; set; }
 
+        /// <summary>
+        /// Файл постера.
+        /// </summary>
         public IFormFile Poster { get; set; }
 
+        /// <summary>
+        /// Режисер.
+        /// </summary>
         public string Producer { get; set; }
 
+        /// <summary>
+        /// Название.
+        /// </summary>
         public string Title { get; set; }
 
+        /// <summary>
+        /// Год выпуска.
+        /// </summary>
         [DataType(DataType.Date)]
         public DateTime? Year { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            var errors = new List<ValidationResult>();
+            _errors = new List<ValidationResult>();
+            ValidateStringProperty(Title, "Введите название фильма!");
+            ValidateStringProperty(Description, "Введите описание фильма!");
+            ValidateStringProperty(Producer, "Введите режисера фильма!");
+            ValidateFileProperty(Poster, "Неверный тип файла!");
 
-            if (string.IsNullOrWhiteSpace(Title))
-                errors.Add(new ValidationResult("Введите название фильма!", new List<string> { nameof(Title) }));
-            if (string.IsNullOrWhiteSpace(Description))
-                errors.Add(new ValidationResult("Введите описание фильма!", new List<string> { nameof(Description) }));
             if (!Year.HasValue)
-                errors.Add(new ValidationResult("Введите год выпуска!", new List<string> { nameof(Year) }));
+                _errors.Add(new ValidationResult("Введите год выпуска!", new[] { nameof(Year) }));
             else if (Year.Value > DateTime.Today || Year.Value == default)
-                errors.Add(new ValidationResult("Неверный год выпуска фильма!", new List<string> { nameof(Year) }));
-            if (!ValidateImage(Poster))
-                errors.Add(new ValidationResult("Неверный тип файла!", new List<string> { nameof(Poster) }));
-            if (string.IsNullOrWhiteSpace(Producer))
-                errors.Add(new ValidationResult("Введите режисера фильма!", new List<string> { nameof(Producer) }));
+                _errors.Add(new ValidationResult("Неверный год выпуска фильма!", new[] { nameof(Year) }));
 
-            return errors;
+            return _errors;
+        }
+
+        /// <summary>
+        /// Валидация поля типа файл. 
+        /// </summary>
+        /// <param name="property"> Файл. </param>
+        /// <param name="errorDescription"> Текст ошибки. </param>
+        private void ValidateFileProperty(IFormFile property, string errorDescription)
+        {
+            if (ValidateImage(property))
+                _errors.Add(new ValidationResult(errorDescription, new[] { nameof(property) }));
         }
 
         /// <summary>
@@ -69,10 +99,19 @@
         /// <returns> Возвращает true, если пройдена. </returns>
         private bool ValidateImage(IFormFile uploadedFile)
         {
-            if (uploadedFile == null)
-                return false;
+            return uploadedFile == null || !_resolutions.Contains(uploadedFile.ContentType) ||
+                   uploadedFile.Length >= MAX_SIZE_IN_BYTES;
+        }
 
-            return _resolutions.Contains(uploadedFile.ContentType) && uploadedFile.Length < MAX_SIZE_IN_BYTES;
+        /// <summary>
+        /// Валидация строковго поля.
+        /// </summary>
+        /// <param name="property"> Валидируемое поле. </param>
+        /// <param name="errorDescription"> Текст ошибки. </param>
+        private void ValidateStringProperty(string property, string errorDescription)
+        {
+            if (string.IsNullOrWhiteSpace(property))
+                _errors.Add(new ValidationResult(errorDescription, new[] { nameof(property) }));
         }
     }
 }

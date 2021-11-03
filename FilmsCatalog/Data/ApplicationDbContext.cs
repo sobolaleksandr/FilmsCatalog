@@ -1,25 +1,23 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using FilmsCatalog.Models;
-
-namespace FilmsCatalog.Data
+﻿namespace FilmsCatalog.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<User>
+    using FilmsCatalog.Models;
+
+    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
+
+    /// <summary>
+    /// Контекст базы данных приложения.
+    /// </summary>
+    public sealed class ApplicationDbContext : IdentityDbContext<User>
     {
-        public DbSet<Movie> Movies { get; set; }
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
-            //Database.EnsureDeleted();
             Database.EnsureCreated();
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Ignore<MovieViewModel>();
-        }
+        /// <summary>
+        /// Таблица <see cref="Movie"/>
+        /// </summary>
+        public DbSet<Movie> Movies { get; set; }
     }
 }

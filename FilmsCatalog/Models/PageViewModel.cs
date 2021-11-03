@@ -1,32 +1,42 @@
-﻿using System;
-
-namespace FilmsCatalog.Models
+﻿namespace FilmsCatalog.Models
 {
+    using System;
+
+    /// <summary>
+    /// Вью модель страницы.
+    /// </summary>
     public class PageViewModel
     {
-        public int PageNumber { get; private set; }
-        public int TotalPages { get; private set; }
-
+        /// <summary>
+        /// Вью модель страницы.
+        /// </summary>
+        /// <param name="count"> Общее число объектов. </param>
+        /// <param name="pageNumber"> Номер текущей страницы. </param>
+        /// <param name="pageSize"> Количество объектов на странице. </param>
         public PageViewModel(int count, int pageNumber, int pageSize)
         {
             PageNumber = pageNumber;
             TotalPages = (int)Math.Ceiling(count / (double)pageSize);
         }
 
-        public bool HasPreviousPage
-        {
-            get
-            {
-                return (PageNumber > 1);
-            }
-        }
+        /// <summary>
+        /// Есть следующая страница.
+        /// </summary>
+        public bool HasNextPage => PageNumber < TotalPages;
 
-        public bool HasNextPage
-        {
-            get
-            {
-                return (PageNumber < TotalPages);
-            }
-        }
+        /// <summary>
+        /// Есть предыдущая страница.
+        /// </summary>
+        public bool HasPreviousPage => PageNumber > 1;
+
+        /// <summary>
+        /// Номер текущей страницы.
+        /// </summary>
+        public int PageNumber { get; }
+
+        /// <summary>
+        /// Общее число страниц.
+        /// </summary>
+        public int TotalPages { get; }
     }
 }
